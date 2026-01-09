@@ -53,7 +53,8 @@ jobs:
         lcov --remove coverage.info \
              '*/test/*' \
              '*/CMakeFiles/*' \
-             --output-file coverage_filtered.info
+             --output-file coverage_filtered.info \
+             --ignore-errors unused
 
         # Show coverage summary
         lcov --summary coverage_filtered.info

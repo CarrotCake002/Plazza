@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 project(plazza)
 
-option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
-
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Compiler warnings
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+
+option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
 
 # Function to enable coverage flags for a target
 function(enable_coverage TARGET)
