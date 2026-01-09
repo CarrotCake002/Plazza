@@ -29,3 +29,28 @@ jobs:
 
     - name: Run tests
       run: ./build/plazza_tests
+
+    - name: Generate coverage
+      run: |
+        lcov --gcov-tool gcov-10 \
+             --capture \
+             --directory build \
+             --ignore-errors mismatch \
+             --output-file coverage.info
+
+        # Remove test files and CMake internals
+        lcov --remove coverage.info \
+             '*/test/*' \
+             '*/CMakeFiles/*' \
+             --output-file coverage_filtered.info
+
+        # Show coverage summary
+        lcov --summary coverage_filtered.info
+
+        # Check threshold
+        COVERAGE=$(lcov --summary coverage_filtered.info | grep lines | awk '{print $2}' | sed 's/%//')
+        echo "Coverage: $COVERAGE%"
+        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+          echo "❌ Coverage $COVERAGE% is below 80% threshold"
+          exit 1
+        fi
