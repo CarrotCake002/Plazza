@@ -30,6 +30,7 @@ jobs:
 
     - name: Configure CMake
       run: cmake -B build \
+              -DENABLE_COVERAGE=ON \
               -DCMAKE_C_COMPILER=gcc-10 \
               -DCMAKE_CXX_COMPILER=g++-10 \
               -DCMAKE_BUILD_TYPE=Debug \
