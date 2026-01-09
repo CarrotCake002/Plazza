@@ -39,7 +39,10 @@ jobs:
 
     - name: Run tests
       working-directory: build
-      run: ctest --output-on-failure
+      run: |
+        export GCOV_PREFIX=$(pwd)
+        export GCOV_PREFIX_STRIP=1
+        ctest --output-on-failure
 
     - name: Generate coverage
       run: |
