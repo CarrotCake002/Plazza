@@ -22,13 +22,9 @@ endfunction()
 # Source files
 file(GLOB_RECURSE SRC_FILES "src/*.cpp")
 
-# Include directories
-file(GLOB_RECURSE INCLUDE_DIRS "include/*")
-include_directories(${INCLUDE_DIRS})
-
 # Main executable
 add_executable(plazza main.cpp ${SRC_FILES})
-target_include_directories(plazza PRIVATE ${INCLUDE_DIRS})
+target_include_directories(plazza PRIVATE ${CMAKE_SOURCE_DIR}/include)
 if(ENABLE_COVERAGE)
     enable_coverage(plazza)
 endif()
@@ -37,14 +33,14 @@ endif()
 enable_testing()
 include(GoogleTest)
 
-# Build GTest
+# Google Test
 find_package(GTest REQUIRED)
 
-# Test executable (includes both tests and source files)
+# Test executable
 file(GLOB_RECURSE TEST_FILES "test/*.cpp")
 if(TEST_FILES)
     add_executable(plazza_tests ${SRC_FILES} ${TEST_FILES})
-    target_include_directories(plazza_tests PRIVATE ${INCLUDE_DIRS})
+    target_include_directories(plazza_tests PRIVATE ${CMAKE_SOURCE_DIR}/include)
     target_link_libraries(plazza_tests GTest::GTest GTest::Main)
     if(ENABLE_COVERAGE)
         enable_coverage(plazza_tests)
