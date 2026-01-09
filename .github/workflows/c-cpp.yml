@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
@@ -49,7 +49,50 @@ jobs:
         cd build
         ./plazza_tests
 
-    # Generate coverage report
+  coverage:
+    runs-on: ubuntu-latest
+    needs: build_and_test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Install dependencies and force GCC 13
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-13 g++-13 lcov cmake libgtest-dev make
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+        sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 100
+
+    # Build Google Test
+    - name: Build GTest
+      run: |
+        mkdir -p build/gtest
+        cd build/gtest
+        cmake /usr/src/gtest
+        cmake --build .
+
+    # Configure your project
+    - name: Configure CMake
+      run: |
+        cmake -B build \
+          -DENABLE_COVERAGE=ON \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DGTEST_ROOT=build/gtest
+
+    # Build project
+    - name: Build
+      run: |
+        cmake --build build
+
+    # Run tests (required to generate .gcda)
+    - name: Run tests
+      run: |
+        cd build
+        ./plazza_tests
+
+    # Generate coverage + enforce 80%
     - name: Generate coverage
       run: |
         cd build
