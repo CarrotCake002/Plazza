@@ -17,12 +17,12 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-13 g++-13 gcov-13 lcov cmake libgtest-dev make
+        sudo apt-get install -y gcc-13 g++-13 lcov cmake libgtest-dev make
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
         sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 100
 
-    # Build GoogleTest (static libs)
+    # Build Google Test
     - name: Build GTest
       run: |
         mkdir -p build/gtest
@@ -30,7 +30,7 @@ jobs:
         cmake /usr/src/gtest
         cmake --build .
 
-    # Configure project with coverage enabled
+    # Configure your project
     - name: Configure CMake
       run: |
         cmake -B build \
@@ -40,9 +40,10 @@ jobs:
 
     # Build project
     - name: Build
-      run: cmake --build build
+      run: |
+        cmake --build build
 
-    # Run tests (this generates .gcda files)
+    # Run tests
     - name: Run tests
       run: |
         cd build
