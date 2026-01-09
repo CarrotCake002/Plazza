@@ -37,13 +37,10 @@ jobs:
     - name: Build project
       run: cmake --build build
 
-    - name: Run tests
-      working-directory: build
-      run: ./plazza_tests
-
     - name: Generate coverage
       working-directory: build
       run: |
+        ./plazza_tests
         lcov --gcov-tool gcov-10 --capture --directory . --ignore-errors mismatch --output-file coverage.info
         lcov --remove coverage.info '*/test/*' '*/CMakeFiles/*' --output-file coverage_filtered.info --ignore-errors unused
         lcov --summary coverage_filtered.info
