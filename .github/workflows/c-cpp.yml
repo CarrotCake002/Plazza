@@ -14,11 +14,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Configure dependencies
-      run: ./configure.sh
-
-    - name: Set GCC 10 as default
+    - name: Install dependencies
       run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc g++ lcov
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
         sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-10 100

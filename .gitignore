@@ -45,3 +45,6 @@ build/
 
 # PDF files
 B-CCP-400_plazza.pdf:Zone.Identifier
+
+# Others
+coverage.info
