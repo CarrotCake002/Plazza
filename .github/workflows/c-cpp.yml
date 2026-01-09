@@ -13,69 +13,44 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # -----------------------------
-    # Install dependencies
-    # -----------------------------
+    # Install GCC 10, G++, lcov, CMake, and GTest
     - name: Install dependencies
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
         sudo apt-get update
         sudo apt-get install -y gcc-10 g++-10 lcov cmake libgtest-dev make
 
-    # -----------------------------
-    # Build GTest manually (system lib)
-    # -----------------------------
-    - name: Build GTest
-      run: |
-        mkdir -p build/gtest
-        cd build/gtest
-        cmake /usr/src/gtest
-        cmake --build . --target all
+        # Force GCC 10 globally
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
+        sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-10 100
 
-    # -----------------------------
     # Configure project
-    # -----------------------------
     - name: Configure CMake
       run: cmake -B build \
                 -DENABLE_COVERAGE=ON \
                 -DCMAKE_C_COMPILER=gcc-10 \
                 -DCMAKE_CXX_COMPILER=g++-10 \
-                -DCMAKE_BUILD_TYPE=Debug \
-                -DGTEST_ROOT=build/gtest
+                -DCMAKE_BUILD_TYPE=Debug
 
-    # -----------------------------
     # Build project
-    # -----------------------------
     - name: Build
       run: cmake --build build
 
-    # -----------------------------
-    # Run tests (ensure .gcda files are generated)
-    # -----------------------------
+    # Run tests to generate .gcda files
     - name: Run tests
       working-directory: build
       run: ./plazza_tests
 
-    # -----------------------------
     # Generate coverage report
-    # -----------------------------
     - name: Generate coverage
       working-directory: build
       run: |
-        # Capture coverage using gcov-10 (matches GCC 10)
         lcov --gcov-tool gcov-10 --capture --directory . --ignore-errors mismatch --output-file coverage.info
-
-        # Remove test files and CMake internals
-        lcov --remove coverage.info \
-             '*/test/*' \
-             '*/CMakeFiles/*' \
-             --output-file coverage_filtered.info \
-             --ignore-errors unused
-
-        # Show summary
+        lcov --remove coverage.info '*/test/*' '*/CMakeFiles/*' --output-file coverage_filtered.info --ignore-errors unused
         lcov --summary coverage_filtered.info
 
-        # Enforce 80% threshold
+        # Threshold check
         COVERAGE=$(lcov --summary coverage_filtered.info | grep lines | awk '{print $2}' | sed 's/%//')
         echo "Coverage: $COVERAGE%"
         if (( $(echo "$COVERAGE < 80" | bc -l) )); then
