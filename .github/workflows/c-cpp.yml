@@ -41,7 +41,6 @@ jobs:
         # Remove test files and CMake internals
         lcov --remove coverage.info \
              '*/test/*' \
-             '*/CMakeFiles/*' \
              --output-file coverage_filtered.info
 
         # Show coverage summary
