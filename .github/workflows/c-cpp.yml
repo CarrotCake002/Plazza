@@ -13,24 +13,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # Install GCC 10, G++, lcov, CMake, and GTest
+    # Install dependencies
     - name: Install dependencies
       run: |
-        sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
         sudo apt-get update
-        sudo apt-get install -y gcc-10 g++-10 lcov cmake libgtest-dev make
+        sudo apt-get install -y gcc g++ lcov cmake libgtest-dev make
 
-        # Force GCC 10 globally
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
-        sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-10 100
-
-    # Configure project
+    # Configure CMake
     - name: Configure CMake
       run: cmake -B build \
                 -DENABLE_COVERAGE=ON \
-                -DCMAKE_C_COMPILER=gcc-10 \
-                -DCMAKE_CXX_COMPILER=g++-10 \
                 -DCMAKE_BUILD_TYPE=Debug
 
     # Build project
@@ -46,11 +38,16 @@ jobs:
     - name: Generate coverage
       working-directory: build
       run: |
-        lcov --gcov-tool gcov-10 --capture --directory . --ignore-errors mismatch --output-file coverage.info
+        # Capture coverage using the runner's gcov (matches GCC)
+        lcov --gcov-tool gcov --capture --directory . --ignore-errors mismatch --output-file coverage.info
+
+        # Remove test files and CMake internals
         lcov --remove coverage.info '*/test/*' '*/CMakeFiles/*' --output-file coverage_filtered.info --ignore-errors unused
+
+        # Show coverage summary
         lcov --summary coverage_filtered.info
 
-        # Threshold check
+        # Enforce 80% threshold
         COVERAGE=$(lcov --summary coverage_filtered.info | grep lines | awk '{print $2}' | sed 's/%//')
         echo "Coverage: $COVERAGE%"
         if (( $(echo "$COVERAGE < 80" | bc -l) )); then
