@@ -35,6 +35,7 @@ target_include_directories(plazza PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 if(ENABLE_COVERAGE)
     enable_coverage(plazza)
+    enable_coverage(plazza_tests)
 endif()
 
 # Enable testing
