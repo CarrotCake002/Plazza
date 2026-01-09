@@ -26,3 +26,14 @@ add_executable(plazza ${SRC_FILES})
 
 # Ensure the compiler searches the include directory
 target_include_directories(plazza PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+# Google Test
+find_package(GTest REQUIRED)
+
+# Test executable
+file(GLOB_RECURSE TEST_FILES "src/*.cpp" "test/*.cpp")
+if(TEST_FILES)
+    add_executable(plazza_tests ${TEST_FILES})
+    target_include_directories(plazza_tests PRIVATE ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(plazza_tests GTest::GTest GTest::Main)
+endif()

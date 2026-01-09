@@ -1,7 +1,7 @@
 #include "usage.hpp"
 
 bool isPositive(int nb) {
-    return nb > 0 ? true : false;
+    return nb >= 0 ? true : false;
 }
 
 int checkArguments(int speed_multi, int cook_nb, int restock_timer) {

@@ -11,4 +11,7 @@
 #define ERROR_INVALID_ARG "Error: Invalid argument"
 #define ERROR_INVALID_ARG_VALUE "Error: Invalid argument value"
 
+bool isPositive(int nb);
+int checkArguments(int speed_multi, int cook_nb, int restock_timer);
+
 #endif // USAGE_HPP
