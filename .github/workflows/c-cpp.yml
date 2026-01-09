@@ -17,29 +17,20 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-13 g++-13 lcov cmake libgtest-dev make tree
+        sudo apt-get install -y gcc-13 g++-13 gcov-13 lcov cmake libgtest-dev make
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
         sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 100
 
-        echo "=== TOOL VERSIONS ==="
-        gcc --version
-        g++ --version
-        gcov --version
-        lcov --version
-        cmake --version
-
-    # Build Google Test
+    # Build GoogleTest (static libs)
     - name: Build GTest
       run: |
         mkdir -p build/gtest
         cd build/gtest
         cmake /usr/src/gtest
         cmake --build .
-        echo "=== GTEST BUILD CONTENT ==="
-        tree .
 
-    # Configure your project
+    # Configure project with coverage enabled
     - name: Configure CMake
       run: |
         cmake -B build \
@@ -47,55 +38,21 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug \
           -DGTEST_ROOT=build/gtest
 
-        echo "=== CMAKE CACHE ==="
-        grep -i coverage build/CMakeCache.txt || true
-        grep -i gtest build/CMakeCache.txt || true
-
     # Build project
     - name: Build
-      run: |
-        cmake --build build --verbose
+      run: cmake --build build
 
-        echo "=== BUILD TREE ==="
-        tree build | head -n 200
-
-    # Inspect test binary BEFORE running it
-    - name: Inspect test binary
-      run: |
-        echo "=== plazza_tests location ==="
-        find build -name plazza_tests -type f
-
-        echo "=== LINKED LIBS ==="
-        ldd build/plazza_tests || true
-
-        echo "=== CHECK COVERAGE FLAGS ==="
-        strings build/plazza_tests | grep gcov || true
-
-    # Run tests
+    # Run tests (this generates .gcda files)
     - name: Run tests
       run: |
         cd build
-        echo "=== RUNNING TESTS ==="
-        ./plazza_tests || true
+        ./plazza_tests
 
-    # Locate coverage files
-    - name: Locate coverage files
-      run: |
-        echo "=== FIND .gcno FILES ==="
-        find . -name "*.gcno" || true
-
-        echo "=== FIND .gcda FILES ==="
-        find . -name "*.gcda" || true
-
-    # Generate coverage report (with debug)
+    # Generate coverage report
     - name: Generate coverage
       run: |
         cd build
 
-        echo "=== LCOV DIRECTORY SCAN ==="
-        find . -maxdepth 3 -type f | head -n 200
-
-        echo "=== CAPTURING COVERAGE ==="
         lcov \
           --gcov-tool gcov-13 \
           --capture \
@@ -103,13 +60,9 @@ jobs:
           --ignore-errors mismatch,empty \
           --output-file coverage.info
 
-        echo "=== RAW COVERAGE INFO ==="
-        head -n 50 coverage.info || true
-
         lcov \
           --remove coverage.info '*/test/*' '*/CMakeFiles/*' \
           --ignore-errors unused \
           --output-file coverage_filtered.info
 
-        echo "=== COVERAGE SUMMARY ==="
         lcov --summary coverage_filtered.info
