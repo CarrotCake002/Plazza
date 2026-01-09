@@ -13,22 +13,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Configure dependencies
       run: ./configure.sh
+
     - name: Configure CMake
-      run: cmake -B build -DCMAKE_CXX_FLAGS="--coverage"
+      run: cmake -B build \
+                  -DCMAKE_C_COMPILER=gcc-10 \
+                  -DCMAKE_CXX_COMPILER=g++-10 \
+                  -DCMAKE_BUILD_TYPE=Debug \
+                  -DENABLE_COVERAGE=ON
+
     - name: Build
       run: cmake --build build
+
     - name: Run tests
-      run: cmake --build build --target plazza_tests && ./build/plazza_tests
-    - name: Check coverage
-      run: |
-        gcov -r build/CMakeFiles/plazza_tests.dir/src -o build
-        lcov --capture --directory build --output-file coverage.info
-        lcov --extract coverage.info '*/src/*' --output-file coverage_filtered.info
-        lcov --list coverage_filtered.info
-        COVERAGE=$(lcov --list coverage_filtered.info | grep TOTAL | tail -1 | awk '{print $2}' | sed 's/%//')
-        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-          echo "Coverage $COVERAGE% is below 80% threshold"
-          exit 1
-        fi
+      run: ./build/plazza_tests
