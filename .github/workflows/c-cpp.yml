@@ -13,17 +13,29 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # Install dependencies
+    # Install dependencies and force GCC 13
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc g++ lcov cmake libgtest-dev make
+        sudo apt-get install -y gcc-13 g++-13 lcov cmake libgtest-dev make
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+        sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 100
 
-    # Configure CMake
+    # Build Google Test (libgtest.a)
+    - name: Build GTest
+      run: |
+        mkdir -p build/gtest
+        cd build/gtest
+        cmake /usr/src/gtest
+        cmake --build . --target all
+
+    # Configure your project with coverage enabled
     - name: Configure CMake
       run: cmake -B build \
                 -DENABLE_COVERAGE=ON \
-                -DCMAKE_BUILD_TYPE=Debug
+                -DCMAKE_BUILD_TYPE=Debug \
+                -DGTEST_ROOT=build/gtest
 
     # Build project
     - name: Build
@@ -38,8 +50,8 @@ jobs:
     - name: Generate coverage
       working-directory: build
       run: |
-        # Capture coverage using the runner's gcov (matches GCC)
-        lcov --gcov-tool gcov --capture --directory . --ignore-errors mismatch --output-file coverage.info
+        # Capture coverage using gcov-13
+        lcov --gcov-tool gcov-13 --capture --directory . --ignore-errors mismatch --output-file coverage.info
 
         # Remove test files and CMake internals
         lcov --remove coverage.info '*/test/*' '*/CMakeFiles/*' --output-file coverage_filtered.info --ignore-errors unused
@@ -47,7 +59,7 @@ jobs:
         # Show coverage summary
         lcov --summary coverage_filtered.info
 
-        # Enforce 80% threshold
+        # Enforce 80% coverage threshold
         COVERAGE=$(lcov --summary coverage_filtered.info | grep lines | awk '{print $2}' | sed 's/%//')
         echo "Coverage: $COVERAGE%"
         if (( $(echo "$COVERAGE < 80" | bc -l) )); then
