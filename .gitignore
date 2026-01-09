@@ -39,3 +39,9 @@
 
 # debug information files
 *.dwo
+
+# Compilation folders
+build/
+
+# PDF files
+B-CCP-400_plazza.pdf:Zone.Identifier
