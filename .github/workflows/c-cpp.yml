@@ -38,7 +38,8 @@ jobs:
       run: cmake --build build
 
     - name: Run tests
-      run: ./build/plazza_tests
+      working-directory: build
+      run: ctest --output-on-failure
 
     - name: Generate coverage
       run: |
