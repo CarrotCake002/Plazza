@@ -13,11 +13,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y libgtest-dev
+    - name: Configure dependencies
+      run: ./configure.sh
     - name: Configure CMake
       run: cmake -B build
     - name: Build
       run: cmake --build build
     - name: Run tests
-      run: cmake --build build --target test
+      run: cmake --build build --target plazza_tests && ./build/plazza_tests
