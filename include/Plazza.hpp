@@ -3,6 +3,6 @@
 
 #include <iostream>
 
-int errorHandling(int ac, char **av);
+int errorHandling(int ac, const char **av);
 
 #endif
