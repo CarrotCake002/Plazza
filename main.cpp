@@ -1,7 +1,7 @@
 #include "Plazza.hpp"
 
 int main(int ac, char **av) {
-    int status = errorHandling(ac, av);
+    int status = errorHandling(ac, (const char**)av);
 
     if (status == 1)
         return 0;

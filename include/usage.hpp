@@ -9,9 +9,11 @@
 // Error
 #define ERROR_INVALID_ARG_NB "Error: Invalid number of arguments"
 #define ERROR_INVALID_ARG "Error: Invalid argument"
+#define ERROR_INVALID_INTEGER "Error: Cook number and restock timer must be positive integers."
 #define ERROR_INVALID_ARG_VALUE "Error: Invalid argument value"
 
 bool isPositive(int nb);
-int checkArguments(int speed_multi, int cook_nb, int restock_timer);
+int checkArguments(float speed_multi, int cook_nb, int restock_timer);
+int errorHandling(int ac, const char **av);
 
 #endif // USAGE_HPP
