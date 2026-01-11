@@ -7,7 +7,7 @@ on:
     branches-ignore: ["main"]
 
 jobs:
-  build_and_test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,12 +41,6 @@ jobs:
     - name: Build
       run: cmake --build build
 
-    # Run tests (sanity check)
-    - name: Run tests
-      run: |
-        cd build
-        ./plazza_tests
-
     # Upload build artifacts
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -54,9 +48,49 @@ jobs:
         name: build-dir
         path: build
 
+  run:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-dir
+        path: build
+
+    # Run program (placeholder)
+    - name: Run program
+      run: |
+        chmod +x build/plazza || true
+        ./build/plazza
+      # will fail automatically if exit code != 0
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-dir
+        path: build
+
+    # Run unit tests
+    - name: Run tests
+      run: |
+        chmod +x build/plazza_tests
+        cd build
+        ./plazza_tests
+
   coverage:
     runs-on: ubuntu-latest
-    needs: build_and_test
+    needs: test
 
     steps:
     - uses: actions/checkout@v4
@@ -65,10 +99,9 @@ jobs:
     - name: Install coverage tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-13 g++-13 lcov
+        sudo apt-get install -y gcc-13 lcov
         sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 100
 
-    # Download build artifacts
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
@@ -82,7 +115,7 @@ jobs:
         cd build
         ./plazza_tests
 
-    # Generate coverage and enforce threshold
+    # Generate coverage and enforce 80%
     - name: Generate coverage
       run: |
         cd build
