@@ -78,6 +78,7 @@ jobs:
     # Run tests again to generate .gcda
     - name: Run tests for coverage
       run: |
+        chmod +x build/plazza_tests
         cd build
         ./plazza_tests
 
