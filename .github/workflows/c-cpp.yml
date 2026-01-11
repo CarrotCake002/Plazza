@@ -65,7 +65,7 @@ jobs:
     - name: Run program
       run: |
         chmod +x build/plazza || true
-        ./build/plazza
+        ./build/plazza 1 5 2000
       # will fail automatically if exit code != 0
 
   test:
