@@ -91,7 +91,7 @@ jobs:
           --gcov-tool gcov-13 \
           --capture \
           --directory . \
-          --ignore-errors mismatch,empty \
+          --ignore-errors mismatch,empty,source \
           --output-file coverage.info
 
         lcov \
