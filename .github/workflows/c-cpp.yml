@@ -1,5 +1,8 @@
 name: C/C++ CI
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: []
