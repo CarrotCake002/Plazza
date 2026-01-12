@@ -128,7 +128,7 @@ jobs:
           --output-file coverage.info
 
         lcov \
-          --remove coverage.info '*/test/*' '*/tests/*' '*/CMakeFiles/*' \
+          --remove coverage.info '*/test/*' '*/tests/*' '*/CMakeFiles/*' '/usr/*' '*/_deps/*' \
           --ignore-errors unused \
           --output-file coverage_filtered.info
 
