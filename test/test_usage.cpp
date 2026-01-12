@@ -88,6 +88,9 @@ INSTANTIATE_TEST_SUITE_P(
         ArgumentsCase{ "3", "test", "2000", -1 },
         ArgumentsCase{ "3", "5", "test", -1 },
         ArgumentsCase{ "3", "5.7", "2000", -1 },
-        ArgumentsCase{ "3", "5", "20.02", -1 }
+        ArgumentsCase{ "3", "5", "20.02", -1 },
+        ArgumentsCase{ "-3", "5", "20", -1 },
+        ArgumentsCase{ "3", "-5", "20", -1 },
+        ArgumentsCase{ "3", "5", "-20", -1 }
     )
 );

@@ -43,8 +43,7 @@
 # Compilation folders
 build/
 
-# PDF files
-B-CCP-400_plazza.pdf:Zone.Identifier
-
-# Others
+# Coverage files
 coverage.info
+coverage_filtered.info
+coverage_html/
