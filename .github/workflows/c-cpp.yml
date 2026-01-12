@@ -128,16 +128,37 @@ jobs:
           --output-file coverage.info
 
         lcov \
-          --remove coverage.info '*/test/*' '*/tests/*' '*/CMakeFiles/*' \
+          --remove coverage.info '*/test/*' '*/tests/*' '*/CMakeFiles/*' '/usr/*' '*/_deps/*' \
           --ignore-errors unused \
           --output-file coverage_filtered.info
 
         lcov --summary coverage_filtered.info
 
-        COVERAGE=$(lcov --summary coverage_filtered.info | awk '/lines/{gsub("%","",$2); print $2}')
+    - name: Generate HTML coverage
+      run: |
+        genhtml build/coverage_filtered.info --output-directory coverage_html --ignore-errors source
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-html
+        path: coverage_html
+    
+    - name: Enforce coverage threshold
+      run: |
+        COVERAGE=$(lcov --summary build/coverage_filtered.info | awk '/lines/{gsub("%","",$2); print $2}')
         echo "Total coverage: ${COVERAGE}%"
 
         if (( $(echo "$COVERAGE < 80" | bc -l) )); then
           echo "❌ Coverage below 80%"
           exit 1
         fi
+   
+    - name: Deploy coverage to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: coverage_html
+        force_orphan: true
