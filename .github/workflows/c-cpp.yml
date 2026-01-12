@@ -144,7 +144,7 @@ jobs:
 
     - name: Generate HTML coverage
       run: |
-        genhtml build/coverage_filtered.info --output-directory coverage_html
+        genhtml build/coverage_filtered.info --output-directory coverage_html --ignore-errors source
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
