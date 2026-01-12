@@ -2,9 +2,9 @@ name: C/C++ CI
 
 on:
   push:
-    branches-ignore: ["main"]
+    branches: []
   pull_request:
-    branches-ignore: ["main"]
+    branches-ignore: [ "main" ]
 
 jobs:
   build:
