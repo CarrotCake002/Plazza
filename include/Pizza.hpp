@@ -1,16 +1,25 @@
 #ifndef PIZZA_HPP
 #define PIZZA_HPP
 
-#include <map>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
+#include <exception>
 
-enum PizzaType {
+#define ERR_INVALID_PIZZA_NAME "Error: Invalid pizza name."
+#define ERR_INVALID_PIZZA_SIZE "Error: Invalid pizza size."
+#define ERR_INVALID_PIZZA_AMOUNT "Error: Invalid pizza amount."
+
+enum class PizzaType {
+    Error = 0,
     Regina = 1,
     Margarita = 2,
     Americana = 4,
     Fantasia = 8
 };
 
-enum PizzaSize {
+enum class PizzaSize {
+    Error = 0,
     S = 1,
     M = 2,
     L = 4,
@@ -26,5 +35,12 @@ struct PizzaOrder {
 
 inline constexpr const char *PizzaNames[] = { "Regina", "Margarita", "Americana", "Fantasia" };
 inline constexpr const char *PizzaSizes[] = { "S", "M", "L", "XL", "XXL" };
+
+class Pizza {
+public:
+    static PizzaType parsePizzaType(std::string input);
+    static PizzaSize parsePizzaSize(std::string input);
+    static int parsePizzaAmount(std::string input);
+};
 
 #endif // PIZZA_HPP

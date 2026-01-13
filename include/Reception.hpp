@@ -7,6 +7,8 @@
 
 #include "Pizza.hpp"
 
+#define ERR_INVALID_INPUT "Error: Invalid input."
+
 class Reception {
 public:
     Reception(float speed_multi, int cook_nb, int restock_timer);
@@ -16,8 +18,11 @@ public:
 
     void displayStatus(void);
 
+    int handleNewOrders(void);
+
     int getInput(void);
     int parseInput(std::string input);
+    int parseOrder(std::string line);
 
 private:
     float speed_multiplier;

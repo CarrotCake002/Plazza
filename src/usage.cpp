@@ -2,22 +2,6 @@
 #include <sstream>
 #include <string>
 
-bool isFloat(const std::string& str)
-{
-    if (str.find('.') == std::string::npos)
-        return false;
-
-    std::istringstream iss(str);
-    float f;
-
-    iss >> std::noskipws >> f;
-    return iss.eof() && !iss.fail();
-}
-
-bool isPositive(int nb) {
-    return nb >= 0 ? true : false;
-}
-
 int checkArguments(float speed_multi, int cook_nb, int restock_timer) {
     if (speed_multi <= 0.0 || cook_nb <= 0 || restock_timer <= 0) {
         std::cout << ERROR_INVALID_ARG_VALUE << std::endl;

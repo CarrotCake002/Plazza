@@ -8,23 +8,45 @@ Reception::~Reception() {
 
 }
 
-int Reception::parseInput(std::string input) {
-    std::istringstream iss(input);
-    std::string pizzaType;
-    std::string pizzaSize;
-    std::string pizzaAmount;
-
-    iss >> pizzaType >> pizzaSize >> pizzaAmount;
-    return 0;
-}
-
 void Reception::displayStatus(void) {
     std::cout << "status" << std::endl;
 }
 
+int Reception::parseOrder(std::string line) {
+    std::istringstream iss(line);
+    std::string pizzaType;
+    std::string pizzaSize;
+    std::string pizzaAmount;
+    std::string leftover;
+    PizzaOrder order;
+
+    iss >> pizzaType >> pizzaSize >> pizzaAmount >> leftover;
+    if (!leftover.empty() || pizzaType.empty() || pizzaSize.empty() || pizzaAmount.empty())
+        return 1;
+    order = {
+        Pizza::parsePizzaType(pizzaType),
+        Pizza::parsePizzaSize(pizzaSize),
+        Pizza::parsePizzaAmount(pizzaAmount)
+    };
+    if (order.type == PizzaType::Error || order.size == PizzaSize::Error || order.amount < 1)
+        return 1;
+    this->newOrders.push_back(order);
+    return 0;
+}
+
+int Reception::parseInput(std::string input) {
+    std::istringstream iss(input);
+    std::string line;
+
+    while (std::getline(iss, line, ';')) {
+        if (parseOrder(line) == 1)
+            return 1;
+    }
+    return 0;
+}
+
 int Reception::getInput(void) {
     std::string input;
-    PizzaOrder order;
 
     std::cout << " > ";
     std::getline(std::cin, input);
@@ -34,7 +56,15 @@ int Reception::getInput(void) {
         displayStatus();
         return 0;
     }
-    parseInput(input);
+    if (parseInput(input) == 1) {
+        this->newOrders.clear();
+        return 0;
+    }
+    return 0;
+}
+
+int Reception::handleNewOrders(void) {
+    std::cout << "There's " << this->newOrders.size() << " new orders!" << std::endl;
     return 0;
 }
 
@@ -42,10 +72,12 @@ int Reception::run(void) {
     int status = true;
 
     while (status) {
-        if (this->getInput() == 1) {
+        if (getInput() == 1) {
             std::cout << "Exitting..." << std::endl;
             break;
         }
+        if (handleNewOrders() < 0)
+            return -1;
     }
     return 0;
 }
