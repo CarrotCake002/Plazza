@@ -152,6 +152,15 @@ jobs:
       with:
         name: coverage-html
         path: coverage_html
+
+    - name: Deploy coverage to GitHub Pages
+      #f: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: coverage_html
+        force_orphan: true
     
     - name: Enforce coverage threshold
       run: |
@@ -162,12 +171,3 @@ jobs:
           echo "❌ Coverage below 80%"
           exit 1
         fi
-   
-    - name: Deploy coverage to GitHub Pages
-      #if: github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_branch: gh-pages
-        publish_dir: coverage_html
-        force_orphan: true
