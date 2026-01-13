@@ -68,7 +68,13 @@ jobs:
     - name: Run program
       run: |
         chmod +x build/plazza || true
-        ./build/plazza 1 5 2000
+        ./build/plazza 1 5 2000 << EOF
+        Regina XL x3
+        Margarita S x1 ; Americana M x4 ; Fantasia L x3
+        status
+        exit
+        EOF
+
       # will fail automatically if exit code != 0
 
   test:
