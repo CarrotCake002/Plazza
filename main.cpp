@@ -1,5 +1,11 @@
 #include "Plazza.hpp"
 
+int run(float speed_multi, int cook_nb, int restock_timer) {
+    Reception reception(speed_multi, cook_nb, restock_timer);
+
+    return reception.run();
+}
+
 int main(int ac, char **av) {
     int status = errorHandling(ac, (const char**)av);
 

@@ -3,7 +3,8 @@
 
 #include <iostream>
 
+#include "Reception.hpp"
+
 int errorHandling(int ac, const char **av);
-int run(float speed_multi, int cook_nb, int restock_timer);
 
 #endif
