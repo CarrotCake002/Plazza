@@ -7,6 +7,5 @@ int main(int ac, char **av) {
         return 0;
     else if (status == -1)
         return 84;
-    std::cout << "Hello world!" << std::endl;
-    return 0;
+    return run(std::stof(av[1]), std::stoi(av[2]), std::stoi(av[3]));
 }
