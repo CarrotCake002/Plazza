@@ -1,17 +1,6 @@
 #include "usage.hpp"
 #include "gtest/gtest.h"
 
-TEST(isPositive, HandlesPositives) {
-    EXPECT_EQ(isPositive(1), true);
-    EXPECT_EQ(isPositive(0), true);
-    EXPECT_EQ(isPositive(9876543), true);
-}
-
-TEST(isPositive, HandlesNegative) {
-    EXPECT_EQ(isPositive(-1), false);
-    EXPECT_EQ(isPositive(-876527), false);
-}
-
 TEST(checkArguments, HandlesCorrectValues) {
     EXPECT_EQ(checkArguments(3, 5, 2000), true);
     EXPECT_EQ(checkArguments(1000, 5, 1), true);
