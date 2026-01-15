@@ -39,8 +39,10 @@ int Reception::parseInput(std::string input) {
     std::string line;
 
     while (std::getline(iss, line, ';')) {
-        if (parseOrder(line) == 1)
+        if (parseOrder(line) == 1) {
+            this->newOrders.clear();
             return 1;
+        }
     }
     return 0;
 }
@@ -56,10 +58,8 @@ int Reception::getInput(void) {
         displayStatus();
         return 0;
     }
-    if (parseInput(input) == 1) {
-        this->newOrders.clear();
+    if (parseInput(input) == 1)
         return 0;
-    }
     return 0;
 }
 

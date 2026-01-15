@@ -24,6 +24,9 @@ public:
     int parseInput(std::string input);
     int parseOrder(std::string line);
 
+    std::vector<PizzaOrder> getNewOrders(void) {return this->newOrders;};
+    std::vector<PizzaOrder> getPendingOrders(void) {return this->pendingOrders;};
+
 private:
     float speed_multiplier;
     int cook_nb;
