@@ -76,7 +76,7 @@ TEST(getInput, HandleInputsInput) {
     std::streambuf* originalCin4 = std::cin.rdbuf(fakeInput4.rdbuf());
     EXPECT_EQ(reception.getInput(), 0);
 
-    std::istringstream fakeInput4("Regina XL x3 ; Americana S 1\n");
-    std::streambuf* originalCin4 = std::cin.rdbuf(fakeInput4.rdbuf());
+    std::istringstream fakeInput5("Regina XL x3 ; Americana S 1\n");
+    std::streambuf* originalCin5 = std::cin.rdbuf(fakeInput5.rdbuf());
     EXPECT_EQ(reception.getInput(), 1);
 }
