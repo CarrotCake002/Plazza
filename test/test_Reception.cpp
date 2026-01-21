@@ -62,21 +62,58 @@ TEST(getInput, HandleInputsInput) {
 
     std::istringstream fakeInput("exit\n");
     std::streambuf* originalCin = std::cin.rdbuf(fakeInput.rdbuf());
+    (void)originalCin;
     EXPECT_EQ(reception.getInput(), 1);
 
     std::istringstream fakeInput2("status\n");
     std::streambuf* originalCin2 = std::cin.rdbuf(fakeInput2.rdbuf());
+    (void)originalCin2;
     EXPECT_EQ(reception.getInput(), 0);
     
     std::istringstream fakeInput3("Regina XL x3\n");
     std::streambuf* originalCin3 = std::cin.rdbuf(fakeInput3.rdbuf());
+    (void)originalCin3;
     EXPECT_EQ(reception.getInput(), 0);
     
     std::istringstream fakeInput4("Regina XL x3 ; Americana S x1\n");
     std::streambuf* originalCin4 = std::cin.rdbuf(fakeInput4.rdbuf());
+    (void)originalCin4;
     EXPECT_EQ(reception.getInput(), 0);
 
     std::istringstream fakeInput5("Regina XL x3 ; Americana S 1\n");
     std::streambuf* originalCin5 = std::cin.rdbuf(fakeInput5.rdbuf());
+    (void)originalCin5;
     EXPECT_EQ(reception.getInput(), 0);
+}
+
+TEST(ConvertOrder, Basic) {
+    Reception r(1,1,1);
+
+    PizzaOrder o{PizzaType::Regina, PizzaSize::M, 2};
+    EXPECT_EQ(r.convertOrderToString(o), "1 2 2");
+    
+    PizzaOrder o2{PizzaType::Americana, PizzaSize::XXL, 156};
+    EXPECT_EQ(r.convertOrderToString(o2), "4 16 156");
+}
+
+TEST(SendOrder, WritesToPipe) {
+    int pipefd[2];
+    pipe(pipefd);
+
+    KitchenInfo k;
+    k.pipefd[1] = pipefd[1];
+
+    Reception r(1,1,1);
+    PizzaOrder o{PizzaType::Regina, PizzaSize::S, 1};
+
+    r.sendOrderToKitchen(o, &k);
+
+    char buffer[64];
+    read(pipefd[0], buffer, sizeof(buffer));
+
+    std::string msg(buffer);
+    EXPECT_TRUE(msg.find("1 1 1") != std::string::npos);
+
+    close(pipefd[0]);
+    close(pipefd[1]);
 }
