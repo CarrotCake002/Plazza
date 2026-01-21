@@ -80,3 +80,35 @@ TEST(getInput, HandleInputsInput) {
     std::streambuf* originalCin5 = std::cin.rdbuf(fakeInput5.rdbuf());
     EXPECT_EQ(reception.getInput(), 0);
 }
+
+TEST(ConvertOrder, Basic) {
+    Reception r(1,1,1);
+
+    PizzaOrder o{PizzaType::Regina, PizzaSize::M, 2};
+    EXPECT_EQ(r.convertOrderToString(o), "1 2 2");
+    
+    PizzaOrder o2{PizzaType::Americana, PizzaSize::XXL, 156};
+    EXPECT_EQ(r.convertOrderToString(o2), "4 16 156");
+}
+
+TEST(SendOrder, WritesToPipe) {
+    int pipefd[2];
+    pipe(pipefd);
+
+    KitchenInfo k;
+    k.pipefd[1] = pipefd[1];
+
+    Reception r(1,1,1);
+    PizzaOrder o{PizzaType::Regina, PizzaSize::S, 1};
+
+    r.sendOrderToKitchen(o, &k);
+
+    char buffer[64];
+    read(pipefd[0], buffer, sizeof(buffer));
+
+    std::string msg(buffer);
+    EXPECT_TRUE(msg.find("1 1 1") != std::string::npos);
+
+    close(pipefd[0]);
+    close(pipefd[1]);
+}
