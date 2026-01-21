@@ -62,22 +62,27 @@ TEST(getInput, HandleInputsInput) {
 
     std::istringstream fakeInput("exit\n");
     std::streambuf* originalCin = std::cin.rdbuf(fakeInput.rdbuf());
+    (void)originalCin;
     EXPECT_EQ(reception.getInput(), 1);
 
     std::istringstream fakeInput2("status\n");
     std::streambuf* originalCin2 = std::cin.rdbuf(fakeInput2.rdbuf());
+    (void)originalCin2;
     EXPECT_EQ(reception.getInput(), 0);
     
     std::istringstream fakeInput3("Regina XL x3\n");
     std::streambuf* originalCin3 = std::cin.rdbuf(fakeInput3.rdbuf());
+    (void)originalCin3;
     EXPECT_EQ(reception.getInput(), 0);
     
     std::istringstream fakeInput4("Regina XL x3 ; Americana S x1\n");
     std::streambuf* originalCin4 = std::cin.rdbuf(fakeInput4.rdbuf());
+    (void)originalCin4;
     EXPECT_EQ(reception.getInput(), 0);
 
     std::istringstream fakeInput5("Regina XL x3 ; Americana S 1\n");
     std::streambuf* originalCin5 = std::cin.rdbuf(fakeInput5.rdbuf());
+    (void)originalCin5;
     EXPECT_EQ(reception.getInput(), 0);
 }
 

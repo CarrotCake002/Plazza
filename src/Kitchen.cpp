@@ -20,7 +20,7 @@ void Kitchen::run(int *pipefd) {
         std::cout << "Size read: " << bytesRead << std::endl;
 
         ssize_t pos;
-        while ((pos = pending.find('\n')) != std::string::npos) {
+        while ((long unsigned int)(pos = pending.find('\n')) != std::string::npos) {
             std::string line = pending.substr(0, pos);
             pending.erase(0, pos + 1);
 
