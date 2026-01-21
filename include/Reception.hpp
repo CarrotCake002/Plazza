@@ -6,6 +6,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #include "Pizza.hpp"
 #include "Kitchen.hpp"

@@ -93,6 +93,18 @@ bool Reception::sendOrderToKitchen(PizzaOrder order, KitchenInfo *k) const {
     return true;
 }
 
+#ifdef TEST_FD_SANITY
+static void assertChildClosedOldPipes(const std::vector<KitchenInfo*>& kitchens)
+{
+    for (KitchenInfo* k : kitchens) {
+        if (fcntl(k->pipefd[0], F_GETFD) != -1 ||
+            fcntl(k->pipefd[1], F_GETFD) != -1) {
+            _exit(42); // FD leak detected
+        }
+    }
+}
+#endif
+
 int Reception::createNewKitchen(void) {
     pid_t pid;
     int pipefd[2];
@@ -113,6 +125,10 @@ int Reception::createNewKitchen(void) {
             close(k->pipefd[1]);
         }
         close(pipefd[1]);           // Close writing
+
+        #ifdef TEST_FD_SANITY
+        assertChildClosedOldPipes(kitchens);
+        #endif
 
         Kitchen kitchen = Kitchen(speed_multiplier, cook_nb, restock_timer);
 
