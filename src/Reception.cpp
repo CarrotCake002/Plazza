@@ -8,7 +8,20 @@ Reception::~Reception() {
 
 }
 
-void Reception::displayStatus(void) {
+void Reception::shutdown(void) {
+    KitchenInfo *info;
+
+    for (auto it = kitchens.begin(); it != kitchens.end(); it++) {
+        info = *it;
+        close(info->pipefd[1]);
+        waitpid(info->pid, nullptr, 0);
+        delete info;
+    }
+    kitchens.clear();
+    std::cout << "Exitting..." << std::endl;
+}
+
+void Reception::displayStatus(void) const {
     std::cout << "status" << std::endl;
 }
 
@@ -63,8 +76,91 @@ int Reception::getInput(void) {
     return 0;
 }
 
+std::string Reception::convertOrderToString(PizzaOrder order) const {
+    std::string str_order = std::to_string(static_cast<int>(order.type)) + " "
+                        + std::to_string(static_cast<int>(order.size)) + " "
+                        + std::to_string(static_cast<int>(order.amount));
+    return str_order;
+}
+
+bool Reception::sendOrderToKitchen(PizzaOrder order, KitchenInfo *k) const {
+    std::string value = convertOrderToString(order);
+
+    std::cout << "Order sent: " << value << std::endl;
+    std::cout << "Order size: " << value.size() << std::endl;
+    value += '\n';
+    write(k->pipefd[1], value.c_str(), value.size() + 1);
+    return true;
+}
+
+int Reception::createNewKitchen(void) {
+    pid_t pid;
+    int pipefd[2];
+
+    if (pipe(pipefd) == -1) {
+        perror("pipe");
+        return -1;
+    }
+    
+    pid = fork();
+    
+    if (pid == -1) {
+        std::cout << ERR_FAILED_FORK << std::endl;
+        return -1;
+    } else if (pid == CHILD_PID) {  // Child process
+        for (KitchenInfo *k : kitchens) {
+            close(k->pipefd[0]);
+            close(k->pipefd[1]);
+        }
+        close(pipefd[1]);           // Close writing
+
+        Kitchen kitchen = Kitchen(speed_multiplier, cook_nb, restock_timer);
+
+        kitchen.run(pipefd);
+        exit(EXIT_SUCCESS);
+    }
+    // Parent process
+    close(pipefd[0]);           // Close reading
+
+    KitchenInfo *info = new KitchenInfo();
+
+    info->pid = pid;
+    info->pipefd[0] = 0;
+    info->pipefd[1] = pipefd[1];
+
+    std::cout << "Adding new kitchen info in parent!" << std::endl;
+    kitchens.push_back(info);
+    std::cout << "New kitchen pid: " << kitchens[kitchens.size() - 1]->pid << std::endl;
+    return 0;
+}
+
 int Reception::handleNewOrders(void) {
+    int status = createNewKitchen();
+    std::vector<PizzaOrder>::iterator curr_order;
+    
+    if (status < 0) {
+        std::cout << "Error: failed to create kitchen." << std::endl;    
+        return -1;
+    }
+
     std::cout << "There's " << this->newOrders.size() << " new orders!" << std::endl;
+
+    auto it = newOrders.begin();
+
+    while (it != newOrders.end()) {
+        KitchenInfo *kitchen = kitchens.back();
+        sendOrderToKitchen(*it, kitchen);
+
+        // Move new order to pending orders
+        pendingOrders.push_back(*it);
+
+        // Remove order from new orders
+        it = newOrders.erase(it);
+    }
+
+    std::cout << "Orders have been assigned!" << std::endl;
+    std::cout << "There's " << this->newOrders.size() << " new orders!" << std::endl;
+    std::cout << "There's " << this->pendingOrders.size() << " pending orders!" << std::endl;
     return 0;
 }
 
@@ -73,11 +169,13 @@ int Reception::run(void) {
 
     while (status) {
         if (getInput() == 1) {
-            std::cout << "Exitting..." << std::endl;
+            shutdown();
             break;
         }
-        if (handleNewOrders() < 0)
-            return -1;
+        if (newOrders.size() > 0) {
+            if (handleNewOrders() < 0)
+                return -1;
+        }
     }
     return 0;
 }
