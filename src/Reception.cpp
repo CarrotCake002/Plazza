@@ -130,10 +130,11 @@ int Reception::createNewKitchen(void) {
         assertChildClosedOldPipes(kitchens);
         #endif
 
-        Kitchen kitchen = Kitchen(speed_multiplier, cook_nb, restock_timer);
-
-        kitchen.run(pipefd);
-        exit(EXIT_SUCCESS);
+        {
+            Kitchen kitchen = Kitchen(speed_multiplier, cook_nb, restock_timer);
+            kitchen.run(pipefd);
+        }
+        _exit(EXIT_SUCCESS);
     }
     // Parent process
     close(pipefd[0]);           // Close reading
