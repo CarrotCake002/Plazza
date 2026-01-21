@@ -36,5 +36,4 @@ void Kitchen::run(int *pipefd) {
     }
     std::cout << "Pipe closed, kitchen shutting down." << std::endl;
     close(pipefd[0]);
-    delete this;
 }
