@@ -24,7 +24,6 @@ public:
     int run_cook(void);
 
     void addOrderToList(std::string pipe_str);
-    PizzaOrder parseOrder(std::string str_order);
 
 private:
     float speed_multip;

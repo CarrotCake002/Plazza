@@ -28,7 +28,8 @@ int Kitchen::run_cook(void) {
         cv.wait(lock, [&] {
             return shutdown || !orders.empty();
         });
-        std::cout << "Cooking..." << std::endl;
+        std::cout << "Cooking " << Pizza::orderToString(orders.back()) << "..." << std::endl;
+        orders.pop_back(); // instead of popping, add to a cooking queue or smth
     }
     return 0;
 }
@@ -45,9 +46,13 @@ void Kitchen::addOrderToList(std::string pipe_str) {
             std::cout << "Order received: " << line << std::endl;
         }
     }
-    orders.push_back(Pizza::parseOrder(line));
 
-    cv.notify_all();
+    PizzaOrder order = Pizza::parseOrder(line);
+    std::unique_lock lock(mtx);
+
+    for (int i = 0; i < order.amount; i++) {
+        orders.push_back((PizzaOrder){order.type, order.size, 1});
+    }
 }
 
 void Kitchen::run(int *pipefd) {
@@ -62,6 +67,9 @@ void Kitchen::run(int *pipefd) {
         std::cout << "Size read: " << bytesRead << std::endl;
 
         addOrderToList(pending);
+
+        std::cout << "Notifying!" << std::endl;
+        cv.notify_one();
     }
     
     std::cout << "Size of message received: " << bytesRead << std::endl;
