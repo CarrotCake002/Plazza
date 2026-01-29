@@ -102,7 +102,7 @@ TEST(SendOrder, WritesToPipe) {
     read(pipefd[0], buffer, sizeof(buffer));
 
     std::string msg(buffer);
-    EXPECT_TRUE(msg.find("1 1 1") != std::string::npos);
+    EXPECT_TRUE(msg.find("Regina S x1") != std::string::npos);
 
     close(pipefd[0]);
     close(pipefd[1]);

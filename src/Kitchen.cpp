@@ -50,7 +50,7 @@ void Kitchen::addOrderToList(std::string pipe_str) {
 
         if (!line.empty()) {
             std::cout << "Order received: " << line << std::endl;
-        }
+        }   
     }
 
     PizzaOrder order = Pizza::parseOrder(line);
