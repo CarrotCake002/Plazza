@@ -10,28 +10,34 @@ Kitchen::Kitchen(float speed_multip, int cooks_nb, int restock_timer) : speed_mu
 
 Kitchen::~Kitchen(void) {
     std::cout << "Kitchen closed!" << std::endl;
-    //shutdown = true;
+
+    shutdown = true;
+    cv.notify_all();
+
     for (auto &cook : cooks) {
         if (cook.joinable())
-            cook.join();
+        cook.join();
     }
 }
 
 int Kitchen::run_cook(void) {
     std::cout << "Cook is running!" << std::endl;
 
-    
-    
-    while (!this->shutdown) {
+    while (!shutdown) {
         std::unique_lock<std::mutex> lock(mtx);
         
         cv.wait(lock, [&] {
             return shutdown || !orders.empty();
         });
+
+        if (shutdown)
+            break;
+
         std::cout << "Cooking " << Pizza::orderToString(orders.back()) << "..." << std::endl;
         orders.pop_back(); // instead of popping, add to a cooking queue or smth
     }
     return 0;
+    std::cout << "Cook shutting down..." << std::endl;
 }
 
 void Kitchen::addOrderToList(std::string pipe_str) {
@@ -56,7 +62,6 @@ void Kitchen::addOrderToList(std::string pipe_str) {
 }
 
 void Kitchen::run(int *pipefd) {
-    //int status = true;
     std::cout << "Kitchen running!" << std::endl;
     char buffer[PIPE_MESSAGE_SIZE];
     std::string pending;
@@ -64,15 +69,12 @@ void Kitchen::run(int *pipefd) {
 
     while ((bytesRead = read(pipefd[0], &buffer, PIPE_MESSAGE_SIZE)), bytesRead > 0) {
         pending.append(buffer, bytesRead);
-        std::cout << "Size read: " << bytesRead << std::endl;
 
         addOrderToList(pending);
 
-        std::cout << "Notifying!" << std::endl;
         cv.notify_one();
     }
     
-    std::cout << "Size of message received: " << bytesRead << std::endl;
     if (bytesRead < 0) {
         std::cout << ERROR_FAILED_READ_ORDER << std::endl;
     }

@@ -67,7 +67,6 @@ int Reception::getInput(void) {
     std::string value = Pizza::orderToString(order);
 
     std::cout << "Order sent: " << value << std::endl;
-    std::cout << "Order size: " << value.size() << std::endl;
     value += '\n';
     write(k->pipefd[1], value.c_str(), value.size() + 1);
     return true;
