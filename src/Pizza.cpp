@@ -41,6 +41,26 @@ PizzaSize Pizza::parsePizzaSize(std::string input) {
     return size;
 }
 
+PizzaOrder Pizza::parsePizzaOrder(std::string input) {
+    std::istringstream iss(input);
+    std::string pizzaType;
+    std::string pizzaSize;
+    std::string pizzaAmount;
+    std::string leftover;
+    PizzaOrder order;
+
+    iss >> pizzaType >> pizzaSize >> pizzaAmount >> leftover;
+    if (!leftover.empty() || pizzaType.empty() || pizzaSize.empty() || pizzaAmount.empty())
+        return (PizzaOrder){ PizzaType::Error, PizzaSize::Error, 0 };
+
+    order = {
+        Pizza::parsePizzaType(pizzaType),
+        Pizza::parsePizzaSize(pizzaSize),
+        Pizza::parsePizzaAmount(pizzaAmount)
+    };
+    return order;
+}
+
 int Pizza::parsePizzaAmount(std::string input) {
     int amount;
 
@@ -60,4 +80,48 @@ int Pizza::parsePizzaAmount(std::string input) {
         return -1;
     }
     return amount;
+}
+
+std::string Pizza::pizzaTypeToString(PizzaType type) {
+    switch (type) {
+        case PizzaType::Regina:
+            return "Regina";
+        case PizzaType::Margarita:
+            return "Margarita";
+        case PizzaType::Americana:
+            return "Americana";
+        case PizzaType::Fantasia:
+            return "Fantasia";
+        default:
+            return "Error";
+    }
+}
+
+std::string Pizza::pizzaSizeToString(PizzaSize size) {
+    switch (size) {
+        case PizzaSize::S:
+            return "S";
+        case PizzaSize::M:
+            return "M";
+        case PizzaSize::L:
+            return "L";
+        case PizzaSize::XL:
+            return "XL";
+        case PizzaSize::XXL:
+            return "XXL";
+        default:
+            return "Error";
+    }
+}
+
+std::string Pizza::pizzaAmountToString(int amount) {
+    if (amount < 1)
+        return "x0";
+    return "x" + std::to_string(amount);
+}
+
+std::string Pizza::pizzaOrderToString(PizzaOrder order) {
+    return Pizza::pizzaTypeToString(order.type)
+        + " " + Pizza::pizzaSizeToString(order.size)
+        + " " + Pizza::pizzaAmountToString(order.amount);
 }

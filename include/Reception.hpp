@@ -34,7 +34,6 @@ public:
     int handleNewOrders(void);
     int createNewKitchen(void);
     bool sendOrderToKitchen(PizzaOrder order, KitchenInfo *k) const;
-    std::string convertOrderToString(PizzaOrder order) const;
 
     int getInput(void);
     int parseInput(std::string input);

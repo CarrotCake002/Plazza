@@ -4,6 +4,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <vector>
+#include <thread>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
 
 #include "Pizza.hpp"
 
@@ -17,11 +21,22 @@ public:
     ~Kitchen(void);
 
     void run(int *pipefd);
+    int run_cook(void);
+
+    void addOrderToList(std::string pipe_str);
+    PizzaOrder parseOrder(std::string str_order);
 
 private:
     float speed_multip;
     int cooks_nb;
     int restock_timer;
+
+    std::mutex mtx;
+    std::condition_variable cv;
+
+    std::vector<PizzaOrder> orders;
+    std::vector<std::thread> cooks;
+    std::atomic<bool> shutdown{false};
 };
 
 #endif // KITCHEN_HPP

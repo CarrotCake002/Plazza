@@ -26,21 +26,8 @@ void Reception::displayStatus(void) const {
 }
 
 int Reception::parseOrder(std::string line) {
-    std::istringstream iss(line);
-    std::string pizzaType;
-    std::string pizzaSize;
-    std::string pizzaAmount;
-    std::string leftover;
-    PizzaOrder order;
+    PizzaOrder order = Pizza::parsePizzaOrder(line);
 
-    iss >> pizzaType >> pizzaSize >> pizzaAmount >> leftover;
-    if (!leftover.empty() || pizzaType.empty() || pizzaSize.empty() || pizzaAmount.empty())
-        return 1;
-    order = {
-        Pizza::parsePizzaType(pizzaType),
-        Pizza::parsePizzaSize(pizzaSize),
-        Pizza::parsePizzaAmount(pizzaAmount)
-    };
     if (order.type == PizzaType::Error || order.size == PizzaSize::Error || order.amount < 1)
         return 1;
     this->newOrders.push_back(order);
@@ -76,15 +63,8 @@ int Reception::getInput(void) {
     return 0;
 }
 
-std::string Reception::convertOrderToString(PizzaOrder order) const {
-    std::string str_order = std::to_string(static_cast<int>(order.type)) + " "
-                        + std::to_string(static_cast<int>(order.size)) + " "
-                        + std::to_string(static_cast<int>(order.amount));
-    return str_order;
-}
-
-bool Reception::sendOrderToKitchen(PizzaOrder order, KitchenInfo *k) const {
-    std::string value = convertOrderToString(order);
+    bool Reception::sendOrderToKitchen(PizzaOrder order, KitchenInfo *k) const {
+    std::string value = Pizza::pizzaOrderToString(order);
 
     std::cout << "Order sent: " << value << std::endl;
     std::cout << "Order size: " << value.size() << std::endl;
