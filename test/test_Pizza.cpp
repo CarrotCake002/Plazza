@@ -1,45 +1,45 @@
 #include "gtest/gtest.h"
 #include "Pizza.hpp"
 
-TEST(parsePizzaType, HandlePizzaTypes) {
-    EXPECT_EQ(Pizza::parsePizzaType("Regina"), PizzaType::Regina);
-    EXPECT_EQ(Pizza::parsePizzaType("Margarita"), PizzaType::Margarita);
-    EXPECT_EQ(Pizza::parsePizzaType("Americana"), PizzaType::Americana);
-    EXPECT_EQ(Pizza::parsePizzaType("Fantasia"), PizzaType::Fantasia);
-    EXPECT_EQ(Pizza::parsePizzaType("XXL"), PizzaType::Error);
-    EXPECT_EQ(Pizza::parsePizzaType("regina"), PizzaType::Error);
-    EXPECT_EQ(Pizza::parsePizzaType("AmeRicAna"), PizzaType::Error);
-    EXPECT_EQ(Pizza::parsePizzaType("hello"), PizzaType::Error);
-    EXPECT_EQ(Pizza::parsePizzaType("75346"), PizzaType::Error);
-    EXPECT_EQ(Pizza::parsePizzaType("-6.7"), PizzaType::Error);
-    EXPECT_EQ(Pizza::parsePizzaType("x"), PizzaType::Error);
+TEST(parseType, HandlePizzaTypes) {
+    EXPECT_EQ(Pizza::parseType("Regina"), PizzaType::Regina);
+    EXPECT_EQ(Pizza::parseType("Margarita"), PizzaType::Margarita);
+    EXPECT_EQ(Pizza::parseType("Americana"), PizzaType::Americana);
+    EXPECT_EQ(Pizza::parseType("Fantasia"), PizzaType::Fantasia);
+    EXPECT_EQ(Pizza::parseType("XXL"), PizzaType::Error);
+    EXPECT_EQ(Pizza::parseType("regina"), PizzaType::Error);
+    EXPECT_EQ(Pizza::parseType("AmeRicAna"), PizzaType::Error);
+    EXPECT_EQ(Pizza::parseType("hello"), PizzaType::Error);
+    EXPECT_EQ(Pizza::parseType("75346"), PizzaType::Error);
+    EXPECT_EQ(Pizza::parseType("-6.7"), PizzaType::Error);
+    EXPECT_EQ(Pizza::parseType("x"), PizzaType::Error);
 }
 
-TEST(parsePizzaSize, HandlePizzaSizes) {
-    EXPECT_EQ(Pizza::parsePizzaSize("S"), PizzaSize::S);
-    EXPECT_EQ(Pizza::parsePizzaSize("M"), PizzaSize::M);
-    EXPECT_EQ(Pizza::parsePizzaSize("L"), PizzaSize::L);
-    EXPECT_EQ(Pizza::parsePizzaSize("XL"), PizzaSize::XL);
-    EXPECT_EQ(Pizza::parsePizzaSize("XXL"), PizzaSize::XXL);
-    EXPECT_EQ(Pizza::parsePizzaSize("regina"), PizzaSize::Error);
-    EXPECT_EQ(Pizza::parsePizzaSize("s"), PizzaSize::Error);
-    EXPECT_EQ(Pizza::parsePizzaSize("MM"), PizzaSize::Error);
-    EXPECT_EQ(Pizza::parsePizzaSize("XX"), PizzaSize::Error);
-    EXPECT_EQ(Pizza::parsePizzaSize("8"), PizzaSize::Error);
-    EXPECT_EQ(Pizza::parsePizzaSize("1.2"), PizzaSize::Error);
-    EXPECT_EQ(Pizza::parsePizzaSize("-16"), PizzaSize::Error);
+TEST(parseSize, HandlePizzaSizes) {
+    EXPECT_EQ(Pizza::parseSize("S"), PizzaSize::S);
+    EXPECT_EQ(Pizza::parseSize("M"), PizzaSize::M);
+    EXPECT_EQ(Pizza::parseSize("L"), PizzaSize::L);
+    EXPECT_EQ(Pizza::parseSize("XL"), PizzaSize::XL);
+    EXPECT_EQ(Pizza::parseSize("XXL"), PizzaSize::XXL);
+    EXPECT_EQ(Pizza::parseSize("regina"), PizzaSize::Error);
+    EXPECT_EQ(Pizza::parseSize("s"), PizzaSize::Error);
+    EXPECT_EQ(Pizza::parseSize("MM"), PizzaSize::Error);
+    EXPECT_EQ(Pizza::parseSize("XX"), PizzaSize::Error);
+    EXPECT_EQ(Pizza::parseSize("8"), PizzaSize::Error);
+    EXPECT_EQ(Pizza::parseSize("1.2"), PizzaSize::Error);
+    EXPECT_EQ(Pizza::parseSize("-16"), PizzaSize::Error);
 }
 
-TEST(parsePizzaAmount, HandlePizzaAmounts) {
-    EXPECT_EQ(Pizza::parsePizzaAmount("x1"), 1);
-    EXPECT_EQ(Pizza::parsePizzaAmount("x70"), 70);
-    EXPECT_EQ(Pizza::parsePizzaAmount("2"), -1);
-    EXPECT_EQ(Pizza::parsePizzaAmount("x"), -1);
-    EXPECT_EQ(Pizza::parsePizzaAmount("x7.2"), -1);
-    EXPECT_EQ(Pizza::parsePizzaAmount("x-10"), -10);
-    EXPECT_EQ(Pizza::parsePizzaAmount("x0"), 0);
-    EXPECT_EQ(Pizza::parsePizzaAmount("x-0"), 0);
-    EXPECT_EQ(Pizza::parsePizzaAmount("-x10"), -1);
-    EXPECT_EQ(Pizza::parsePizzaAmount("7x"), -1);
-    EXPECT_EQ(Pizza::parsePizzaAmount("xx10"), -1);
+TEST(parseAmount, HandlePizzaAmounts) {
+    EXPECT_EQ(Pizza::parseAmount("x1"), 1);
+    EXPECT_EQ(Pizza::parseAmount("x70"), 70);
+    EXPECT_EQ(Pizza::parseAmount("2"), -1);
+    EXPECT_EQ(Pizza::parseAmount("x"), -1);
+    EXPECT_EQ(Pizza::parseAmount("x7.2"), -1);
+    EXPECT_EQ(Pizza::parseAmount("x-10"), -10);
+    EXPECT_EQ(Pizza::parseAmount("x0"), 0);
+    EXPECT_EQ(Pizza::parseAmount("x-0"), 0);
+    EXPECT_EQ(Pizza::parseAmount("-x10"), -1);
+    EXPECT_EQ(Pizza::parseAmount("7x"), -1);
+    EXPECT_EQ(Pizza::parseAmount("xx10"), -1);
 }

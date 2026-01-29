@@ -26,7 +26,7 @@ void Reception::displayStatus(void) const {
 }
 
 int Reception::parseOrder(std::string line) {
-    PizzaOrder order = Pizza::parsePizzaOrder(line);
+    PizzaOrder order = Pizza::parseOrder(line);
 
     if (order.type == PizzaType::Error || order.size == PizzaSize::Error || order.amount < 1)
         return 1;
@@ -64,7 +64,7 @@ int Reception::getInput(void) {
 }
 
     bool Reception::sendOrderToKitchen(PizzaOrder order, KitchenInfo *k) const {
-    std::string value = Pizza::pizzaOrderToString(order);
+    std::string value = Pizza::orderToString(order);
 
     std::cout << "Order sent: " << value << std::endl;
     std::cout << "Order size: " << value.size() << std::endl;

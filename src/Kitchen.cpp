@@ -45,8 +45,9 @@ void Kitchen::addOrderToList(std::string pipe_str) {
             std::cout << "Order received: " << line << std::endl;
         }
     }
+    orders.push_back(Pizza::parseOrder(line));
 
-    
+    cv.notify_all();
 }
 
 void Kitchen::run(int *pipefd) {

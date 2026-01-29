@@ -1,7 +1,7 @@
 #include "Pizza.hpp"
 #include "utils/utils.hpp"
 
-PizzaType Pizza::parsePizzaType(std::string input) {
+PizzaType Pizza::parseType(std::string input) {
     PizzaType type;
 
     input.erase(remove_if(input.begin(), input.end(), isspace), input.end());
@@ -20,7 +20,7 @@ PizzaType Pizza::parsePizzaType(std::string input) {
     return type;
 }
 
-PizzaSize Pizza::parsePizzaSize(std::string input) {
+PizzaSize Pizza::parseSize(std::string input) {
     PizzaSize size;
 
     input.erase(remove_if(input.begin(), input.end(), isspace), input.end());
@@ -41,7 +41,7 @@ PizzaSize Pizza::parsePizzaSize(std::string input) {
     return size;
 }
 
-PizzaOrder Pizza::parsePizzaOrder(std::string input) {
+PizzaOrder Pizza::parseOrder(std::string input) {
     std::istringstream iss(input);
     std::string pizzaType;
     std::string pizzaSize;
@@ -54,14 +54,14 @@ PizzaOrder Pizza::parsePizzaOrder(std::string input) {
         return (PizzaOrder){ PizzaType::Error, PizzaSize::Error, 0 };
 
     order = {
-        Pizza::parsePizzaType(pizzaType),
-        Pizza::parsePizzaSize(pizzaSize),
-        Pizza::parsePizzaAmount(pizzaAmount)
+        Pizza::parseType(pizzaType),
+        Pizza::parseSize(pizzaSize),
+        Pizza::parseAmount(pizzaAmount)
     };
     return order;
 }
 
-int Pizza::parsePizzaAmount(std::string input) {
+int Pizza::parseAmount(std::string input) {
     int amount;
 
     input.erase(remove_if(input.begin(), input.end(), isspace), input.end());
@@ -82,7 +82,7 @@ int Pizza::parsePizzaAmount(std::string input) {
     return amount;
 }
 
-std::string Pizza::pizzaTypeToString(PizzaType type) {
+std::string Pizza::typeToString(PizzaType type) {
     switch (type) {
         case PizzaType::Regina:
             return "Regina";
@@ -97,7 +97,7 @@ std::string Pizza::pizzaTypeToString(PizzaType type) {
     }
 }
 
-std::string Pizza::pizzaSizeToString(PizzaSize size) {
+std::string Pizza::sizeToString(PizzaSize size) {
     switch (size) {
         case PizzaSize::S:
             return "S";
@@ -114,14 +114,14 @@ std::string Pizza::pizzaSizeToString(PizzaSize size) {
     }
 }
 
-std::string Pizza::pizzaAmountToString(int amount) {
+std::string Pizza::amountToString(int amount) {
     if (amount < 1)
         return "x0";
     return "x" + std::to_string(amount);
 }
 
-std::string Pizza::pizzaOrderToString(PizzaOrder order) {
-    return Pizza::pizzaTypeToString(order.type)
-        + " " + Pizza::pizzaSizeToString(order.size)
-        + " " + Pizza::pizzaAmountToString(order.amount);
+std::string Pizza::orderToString(PizzaOrder order) {
+    return Pizza::typeToString(order.type)
+        + " " + Pizza::sizeToString(order.size)
+        + " " + Pizza::amountToString(order.amount);
 }

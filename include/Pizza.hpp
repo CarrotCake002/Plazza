@@ -38,15 +38,15 @@ inline constexpr const char *PizzaSizes[] = { "S", "M", "L", "XL", "XXL" };
 
 class Pizza {
 public:
-    static PizzaType parsePizzaType(std::string input);
-    static PizzaSize parsePizzaSize(std::string input);
-    static int parsePizzaAmount(std::string input);
-    static PizzaOrder parsePizzaOrder(std::string input);
+    static PizzaType parseType(std::string input);
+    static PizzaSize parseSize(std::string input);
+    static int parseAmount(std::string input);
+    static PizzaOrder parseOrder(std::string input);
 
-    static std::string pizzaOrderToString(PizzaOrder order);
-    static std::string pizzaTypeToString(PizzaType type);
-    static std::string pizzaSizeToString(PizzaSize size);
-    static std::string pizzaAmountToString(int amount);
+    static std::string orderToString(PizzaOrder order);
+    static std::string typeToString(PizzaType type);
+    static std::string sizeToString(PizzaSize size);
+    static std::string amountToString(int amount);
 };
 
 #endif // PIZZA_HPP
