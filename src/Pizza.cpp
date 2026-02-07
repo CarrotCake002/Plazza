@@ -1,7 +1,7 @@
 #include "Pizza.hpp"
 #include "utils/utils.hpp"
 
-PizzaType Pizza::parsePizzaType(std::string input) {
+PizzaType Pizza::parseType(std::string input) {
     PizzaType type;
 
     input.erase(remove_if(input.begin(), input.end(), isspace), input.end());
@@ -20,7 +20,7 @@ PizzaType Pizza::parsePizzaType(std::string input) {
     return type;
 }
 
-PizzaSize Pizza::parsePizzaSize(std::string input) {
+PizzaSize Pizza::parseSize(std::string input) {
     PizzaSize size;
 
     input.erase(remove_if(input.begin(), input.end(), isspace), input.end());
@@ -41,7 +41,27 @@ PizzaSize Pizza::parsePizzaSize(std::string input) {
     return size;
 }
 
-int Pizza::parsePizzaAmount(std::string input) {
+PizzaOrder Pizza::parseOrder(std::string input) {
+    std::istringstream iss(input);
+    std::string pizzaType;
+    std::string pizzaSize;
+    std::string pizzaAmount;
+    std::string leftover;
+    PizzaOrder order;
+
+    iss >> pizzaType >> pizzaSize >> pizzaAmount >> leftover;
+    if (!leftover.empty() || pizzaType.empty() || pizzaSize.empty() || pizzaAmount.empty())
+        return (PizzaOrder){ PizzaType::Error, PizzaSize::Error, 0 };
+
+    order = {
+        Pizza::parseType(pizzaType),
+        Pizza::parseSize(pizzaSize),
+        Pizza::parseAmount(pizzaAmount)
+    };
+    return order;
+}
+
+int Pizza::parseAmount(std::string input) {
     int amount;
 
     input.erase(remove_if(input.begin(), input.end(), isspace), input.end());
@@ -60,4 +80,48 @@ int Pizza::parsePizzaAmount(std::string input) {
         return -1;
     }
     return amount;
+}
+
+std::string Pizza::typeToString(PizzaType type) {
+    switch (type) {
+        case PizzaType::Regina:
+            return "Regina";
+        case PizzaType::Margarita:
+            return "Margarita";
+        case PizzaType::Americana:
+            return "Americana";
+        case PizzaType::Fantasia:
+            return "Fantasia";
+        default:
+            return "Error";
+    }
+}
+
+std::string Pizza::sizeToString(PizzaSize size) {
+    switch (size) {
+        case PizzaSize::S:
+            return "S";
+        case PizzaSize::M:
+            return "M";
+        case PizzaSize::L:
+            return "L";
+        case PizzaSize::XL:
+            return "XL";
+        case PizzaSize::XXL:
+            return "XXL";
+        default:
+            return "Error";
+    }
+}
+
+std::string Pizza::amountToString(int amount) {
+    if (amount < 1)
+        return "x0";
+    return "x" + std::to_string(amount);
+}
+
+std::string Pizza::orderToString(PizzaOrder order) {
+    return Pizza::typeToString(order.type)
+        + " " + Pizza::sizeToString(order.size)
+        + " " + Pizza::amountToString(order.amount);
 }

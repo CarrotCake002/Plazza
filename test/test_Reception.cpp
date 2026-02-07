@@ -86,16 +86,6 @@ TEST(getInput, HandleInputsInput) {
     EXPECT_EQ(reception.getInput(), 0);
 }
 
-TEST(ConvertOrder, Basic) {
-    Reception r(1,1,1);
-
-    PizzaOrder o{PizzaType::Regina, PizzaSize::M, 2};
-    EXPECT_EQ(r.convertOrderToString(o), "1 2 2");
-    
-    PizzaOrder o2{PizzaType::Americana, PizzaSize::XXL, 156};
-    EXPECT_EQ(r.convertOrderToString(o2), "4 16 156");
-}
-
 TEST(SendOrder, WritesToPipe) {
     int pipefd[2];
     pipe(pipefd);
@@ -112,7 +102,7 @@ TEST(SendOrder, WritesToPipe) {
     read(pipefd[0], buffer, sizeof(buffer));
 
     std::string msg(buffer);
-    EXPECT_TRUE(msg.find("1 1 1") != std::string::npos);
+    EXPECT_TRUE(msg.find("Regina S x1") != std::string::npos);
 
     close(pipefd[0]);
     close(pipefd[1]);
