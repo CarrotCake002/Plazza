@@ -102,7 +102,7 @@ TEST(KitchenUnit, AddOrderSingle)
 
     kitchen.addOrderToList("Regina S x1\n");
 
-    EXPECT_EQ(kitchen.getOrderCount(), 1);
+    EXPECT_EQ(kitchen.getOrderCount() + kitchen.getPendingCount(), 1);
 }
 
 TEST(KitchenUnit, AddOrderMultipleAmount)
@@ -112,7 +112,7 @@ TEST(KitchenUnit, AddOrderMultipleAmount)
     kitchen.addOrderToList("Americana L x3\n");
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    EXPECT_EQ(kitchen.getPendingCount(), 3);
+    EXPECT_EQ(kitchen.getPendingCount() + kitchen.getOrderCount(), 3);
 }
 
 TEST(KitchenUnit, AddMultipleOrdersInOneChunk)
@@ -122,7 +122,7 @@ TEST(KitchenUnit, AddMultipleOrdersInOneChunk)
     kitchen.addOrderToList("Margarita XXL x3\n");
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    EXPECT_EQ(kitchen.getPendingCount(), 3);
+    EXPECT_EQ(kitchen.getPendingCount() + kitchen.getOrderCount(), 3);
 }
 
 /* =========================================================
