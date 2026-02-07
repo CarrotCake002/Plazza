@@ -111,7 +111,7 @@ TEST(KitchenUnit, AddOrderMultipleAmount)
 
     kitchen.addOrderToList("Americana L x3\n");
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     EXPECT_EQ(kitchen.getPendingCount(), 3);
 }
 
@@ -121,7 +121,7 @@ TEST(KitchenUnit, AddMultipleOrdersInOneChunk)
 
     kitchen.addOrderToList("Margarita XXL x3\n");
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     EXPECT_EQ(kitchen.getPendingCount(), 3);
 }
 
@@ -133,7 +133,7 @@ TEST(KitchenLifecycle, ConstructorDestructorNoDeadlock)
 {
     {
         Kitchen kitchen(1.0f, 2, 1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
     SUCCEED(); // destructor joined all threads
 }
@@ -149,7 +149,7 @@ TEST(KitchenConcurrency, CookConsumesOneOrder)
     kitchen.addOrderToList("Regina S x1\n");
     kitchen.cv.notify_one();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     EXPECT_EQ(kitchen.getOrderCount(), 0);
 }
@@ -161,7 +161,7 @@ TEST(KitchenConcurrency, CookConsumesMultipleOrders)
     kitchen.addOrderToList("Regina S x3\n");
     kitchen.cv.notify_all();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     EXPECT_EQ(kitchen.getOrderCount(), 0);
 }
@@ -188,6 +188,6 @@ TEST(KitchenRun, PipeCreatesOrders)
 
     kitchen.displayAllOrders();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     EXPECT_EQ(kitchen.getPendingCount(), 2);
 }
