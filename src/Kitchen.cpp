@@ -54,8 +54,8 @@ int Kitchen::run_cook(void) {
         pending.push_back(orders.back());
         orders.pop_back(); // instead of popping, add to a cooking queue or smth
     }
-    return 0;
     std::cout << "Cook shutting down..." << std::endl;
+    return 0;
 }
 
 void Kitchen::addOrderToList(std::string pipe_str) {
