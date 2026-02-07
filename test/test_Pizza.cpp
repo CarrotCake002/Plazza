@@ -13,6 +13,8 @@ TEST(parseType, HandlePizzaTypes) {
     EXPECT_EQ(Pizza::parseType("75346"), PizzaType::Error);
     EXPECT_EQ(Pizza::parseType("-6.7"), PizzaType::Error);
     EXPECT_EQ(Pizza::parseType("x"), PizzaType::Error);
+    EXPECT_EQ(Pizza::parseType("Reginabgsd"), PizzaType::Error);
+    EXPECT_EQ(Pizza::parseType("gfdsgbRegina"), PizzaType::Error);
 }
 
 TEST(parseSize, HandlePizzaSizes) {
@@ -42,4 +44,29 @@ TEST(parseAmount, HandlePizzaAmounts) {
     EXPECT_EQ(Pizza::parseAmount("-x10"), -1);
     EXPECT_EQ(Pizza::parseAmount("7x"), -1);
     EXPECT_EQ(Pizza::parseAmount("xx10"), -1);
+}
+
+TEST(typeToString, HandleTypeConversion) {
+    EXPECT_EQ(Pizza::typeToString(PizzaType::Regina), "Regina");
+    EXPECT_EQ(Pizza::typeToString(PizzaType::Americana), "Americana");
+    EXPECT_EQ(Pizza::typeToString(PizzaType::Fantasia), "Fantasia");
+    EXPECT_EQ(Pizza::typeToString(PizzaType::Margarita), "Margarita");
+    EXPECT_EQ(Pizza::typeToString(PizzaType::Error), "Error"); 
+}
+
+TEST(sizeToString, HandleSizeConversion) {
+    EXPECT_EQ(Pizza::sizeToString(PizzaSize::S), "S");
+    EXPECT_EQ(Pizza::sizeToString(PizzaSize::M), "M");
+    EXPECT_EQ(Pizza::sizeToString(PizzaSize::L), "L");
+    EXPECT_EQ(Pizza::sizeToString(PizzaSize::XL), "XL");
+    EXPECT_EQ(Pizza::sizeToString(PizzaSize::XXL), "XXL");
+    EXPECT_EQ(Pizza::sizeToString(PizzaSize::Error), "Error");
+}
+
+TEST(amountToString, HandleAmountConversion) {
+    EXPECT_EQ(Pizza::amountToString(1), "x1");
+    EXPECT_EQ(Pizza::amountToString(85446), "x85446");
+    EXPECT_EQ(Pizza::amountToString(-1), "x0");
+    EXPECT_EQ(Pizza::amountToString(0), "x0");
+    EXPECT_EQ(Pizza::amountToString(-866446), "x0");
 }

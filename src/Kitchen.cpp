@@ -11,12 +11,28 @@ Kitchen::Kitchen(float speed_multip, int cooks_nb, int restock_timer) : speed_mu
 Kitchen::~Kitchen(void) {
     std::cout << "Kitchen closed!" << std::endl;
 
+    orders.clear();
+
     shutdown = true;
     cv.notify_all();
 
     for (auto &cook : cooks) {
         if (cook.joinable())
         cook.join();
+    }
+}
+
+void Kitchen::displayAllOrders(void) {
+    std::lock_guard<std::mutex> lock(mtx);
+ 
+    std::cout << "Orders to assign:" << std::endl;
+    for (auto order : orders) {
+        std::cout << "    " << Pizza::orderToString(order) << std::endl;
+    }
+
+    std::cout << "Pending orders:" << std::endl;
+    for (auto order : pending) {
+        std::cout << "    " << Pizza::orderToString(order) << std::endl;
     }
 }
 
@@ -34,6 +50,8 @@ int Kitchen::run_cook(void) {
             break;
 
         std::cout << "Cooking " << Pizza::orderToString(orders.back()) << "..." << std::endl;
+
+        pending.push_back(orders.back());
         orders.pop_back(); // instead of popping, add to a cooking queue or smth
     }
     return 0;
@@ -43,19 +61,19 @@ int Kitchen::run_cook(void) {
 void Kitchen::addOrderToList(std::string pipe_str) {
     ssize_t pos;
     std::string line;
-
+    
     while ((long unsigned int)(pos = pipe_str.find('\n')) != std::string::npos) {
         line = pipe_str.substr(0, pos);
         pipe_str.erase(0, pos + 1);
-
+        
         if (!line.empty()) {
             std::cout << "Order received: " << line << std::endl;
-        }   
+        }
     }
-
+    
     PizzaOrder order = Pizza::parseOrder(line);
-    std::unique_lock lock(mtx);
-
+    std::lock_guard<std::mutex> lock(mtx);
+    
     for (int i = 0; i < order.amount; i++) {
         orders.push_back((PizzaOrder){order.type, order.size, 1});
     }
