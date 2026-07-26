@@ -1,7 +1,7 @@
 #include "Reception.hpp"
 
 Reception::Reception(float speed_multi, int cook_nb, int restock_timer) : speed_multiplier(speed_multi), cook_nb(cook_nb), restock_timer(restock_timer) {
-
+    createNewKitchen();
 }
 
 Reception::~Reception() {
@@ -11,13 +11,17 @@ Reception::~Reception() {
 void Reception::shutdown(void) {
     KitchenInfo *info;
 
-    for (auto it = kitchens.begin(); it != kitchens.end(); it++) {
-        info = *it;
-        close(info->pipefd[1]);
-        waitpid(info->pid, nullptr, 0);
-        delete info;
+    {
+        std::lock_guard<std::mutex> lock(status_mtx);
+        for (auto it = kitchens.begin(); it != kitchens.end(); it++) {
+            info = *it;
+            close(info->pipefd[1]);
+            waitpid(info->pid, nullptr, 0);
+            freeSharedStatus(info);
+            delete info;
+        }
+        kitchens.clear();
     }
-    kitchens.clear();
     std::cout << "Exitting..." << std::endl;
 }
 
@@ -52,7 +56,7 @@ int Reception::getInput(void) {
 
     std::cout << " > ";
     std::getline(std::cin, input);
-    if (input == "exit")
+    if (std::cin.eof() || input == "exit")
         return 1;
     if (input == "status") {
         displayStatus();
@@ -84,19 +88,44 @@ static void assertChildClosedOldPipes(const std::vector<KitchenInfo*>& kitchens)
 }
 #endif
 
+KitchenStatus* Reception::allocSharedStatus(void) {
+    void* mem = mmap(nullptr, sizeof(KitchenStatus),
+                     PROT_READ | PROT_WRITE,
+                     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    if (mem == MAP_FAILED) {
+        perror("mmap");
+        return nullptr;
+    }
+    auto* status = static_cast<KitchenStatus*>(mem);
+    status->cooks_total.store(cook_nb, std::memory_order_relaxed);
+    return status;
+}
+
+void Reception::freeSharedStatus(KitchenInfo* info) {
+    if (info->status) {
+        munmap(info->status, sizeof(KitchenStatus));
+        info->status = nullptr;
+    }
+}
+
 int Reception::createNewKitchen(void) {
     pid_t pid;
     int pipefd[2];
 
+    KitchenStatus* status = allocSharedStatus();
+    if (!status) return -1;
+
     if (pipe(pipefd) == -1) {
         perror("pipe");
+        munmap(status, sizeof(KitchenStatus));
         return -1;
     }
-    
+
     pid = fork();
-    
+
     if (pid == -1) {
         std::cout << ERR_FAILED_FORK << std::endl;
+        munmap(status, sizeof(KitchenStatus));
         return -1;
     } else if (pid == CHILD_PID) {  // Child process
         for (KitchenInfo *k : kitchens) {
@@ -110,7 +139,7 @@ int Reception::createNewKitchen(void) {
         #endif
 
         {
-            Kitchen kitchen = Kitchen(speed_multiplier, cook_nb, restock_timer);
+            Kitchen kitchen = Kitchen(speed_multiplier, cook_nb, restock_timer, status);
             kitchen.run(pipefd);
         }
         _exit(EXIT_SUCCESS);
@@ -123,9 +152,13 @@ int Reception::createNewKitchen(void) {
     info->pid = pid;
     info->pipefd[0] = 0;
     info->pipefd[1] = pipefd[1];
+    info->status = status;
 
     std::cout << "Adding new kitchen info in parent!" << std::endl;
-    kitchens.push_back(info);
+    {
+        std::lock_guard<std::mutex> lock(status_mtx);
+        kitchens.push_back(info);
+    }
     std::cout << "New kitchen pid: " << kitchens[kitchens.size() - 1]->pid << std::endl;
     return 0;
 }
@@ -147,11 +180,11 @@ int Reception::handleNewOrders(void) {
         KitchenInfo *kitchen = kitchens.back();
         sendOrderToKitchen(*it, kitchen);
 
-        // Move new order to pending orders
-        pendingOrders.push_back(*it);
-
-        // Remove order from new orders
-        it = newOrders.erase(it);
+        {
+            std::lock_guard<std::mutex> lock(status_mtx);
+            pendingOrders.push_back(*it);
+            it = newOrders.erase(it);
+        }
     }
 
     std::cout << "Orders have been assigned!" << std::endl;

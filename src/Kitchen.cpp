@@ -1,10 +1,17 @@
 #include "Kitchen.hpp"
 
-Kitchen::Kitchen(float speed_multip, int cooks_nb, int restock_timer) : speed_multip(speed_multip), cooks_nb(cooks_nb), restock_timer(restock_timer) {
+Kitchen::Kitchen(float speed_multip, int cooks_nb, int restock_timer, KitchenStatus* status)
+    : speed_multip(speed_multip), cooks_nb(cooks_nb), restock_timer(restock_timer), status_shm(status)
+{
     std::cout << "Kitchen created!" << std::endl;
 
     for (int i = 0; i < cooks_nb; i++) {
         cooks.push_back(std::thread(&Kitchen::run_cook, this));
+    }
+
+    if (status_shm) {
+        status_shm->orders_queued.store(0, std::memory_order_relaxed);
+        status_shm->orders_cooking.store(0, std::memory_order_relaxed);
     }
 }
 
@@ -53,6 +60,11 @@ int Kitchen::run_cook(void) {
 
         pending.push_back(orders.back());
         orders.pop_back(); // instead of popping, add to a cooking queue or smth
+
+        if (status_shm) {
+            status_shm->orders_queued.store(orders.size(), std::memory_order_relaxed);
+            status_shm->orders_cooking.store(pending.size(), std::memory_order_relaxed);
+        }
     }
     std::cout << "Cook shutting down..." << std::endl;
     return 0;
@@ -77,6 +89,9 @@ void Kitchen::addOrderToList(std::string pipe_str) {
     for (int i = 0; i < order.amount; i++) {
         orders.push_back((PizzaOrder){order.type, order.size, 1});
     }
+
+    if (status_shm)
+        status_shm->orders_queued.store(orders.size(), std::memory_order_relaxed);
 }
 
 void Kitchen::run(int *pipefd) {

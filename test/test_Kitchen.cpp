@@ -18,7 +18,7 @@ TEST(KitchenIntegration, ReadsOrdersAndStopsOnEOF) {
 
     if (pid == 0) {
         close(pipefd[1]);
-        Kitchen kitchen(1.0f, 1, 1);
+        Kitchen kitchen(1.0f, 1, 1, nullptr);
         kitchen.run(pipefd);
         _exit(0);
     }
@@ -49,7 +49,7 @@ TEST(KitchenIntegration, TwoKitchensCloseIndependently) {
 
     if (pidA == 0) {
         close(pipeA[1]);
-        Kitchen kitchenA(1.0f, 1, 1);
+        Kitchen kitchenA(1.0f, 1, 1, nullptr);
         kitchenA.run(pipeA);
         _exit(0);
     }
@@ -61,7 +61,7 @@ TEST(KitchenIntegration, TwoKitchensCloseIndependently) {
         close(pipeA[0]);
         close(pipeA[1]);
         close(pipeB[1]);
-        Kitchen kitchenB(1.0f, 1, 1);
+        Kitchen kitchenB(1.0f, 1, 1, nullptr);
         kitchenB.run(pipeB);
         _exit(0);
     }
@@ -98,7 +98,7 @@ TEST(KitchenIntegration, TwoKitchensCloseIndependently) {
 
 TEST(KitchenUnit, AddOrderSingle)
 {
-    Kitchen kitchen(1.0f, 1, 1);
+    Kitchen kitchen(1.0f, 1, 1, nullptr);
 
     kitchen.addOrderToList("Regina S x1\n");
 
@@ -107,7 +107,7 @@ TEST(KitchenUnit, AddOrderSingle)
 
 TEST(KitchenUnit, AddOrderMultipleAmount)
 {
-    Kitchen kitchen(1.0f, 1, 1);
+    Kitchen kitchen(1.0f, 1, 1, nullptr);
 
     kitchen.addOrderToList("Americana L x3\n");
 
@@ -117,7 +117,7 @@ TEST(KitchenUnit, AddOrderMultipleAmount)
 
 TEST(KitchenUnit, AddMultipleOrdersInOneChunk)
 {
-    Kitchen kitchen(1.0f, 1, 1);
+    Kitchen kitchen(1.0f, 1, 1, nullptr);
 
     kitchen.addOrderToList("Margarita XXL x3\n");
 
@@ -132,7 +132,7 @@ TEST(KitchenUnit, AddMultipleOrdersInOneChunk)
 TEST(KitchenLifecycle, ConstructorDestructorNoDeadlock)
 {
     {
-        Kitchen kitchen(1.0f, 2, 1);
+        Kitchen kitchen(1.0f, 2, 1, nullptr);
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
     SUCCEED(); // destructor joined all threads
@@ -144,7 +144,7 @@ TEST(KitchenLifecycle, ConstructorDestructorNoDeadlock)
 
 TEST(KitchenConcurrency, CookConsumesOneOrder)
 {
-    Kitchen kitchen(1.0f, 1, 1);
+    Kitchen kitchen(1.0f, 1, 1, nullptr);
 
     kitchen.addOrderToList("Regina S x1\n");
     kitchen.cv.notify_one();
@@ -156,7 +156,7 @@ TEST(KitchenConcurrency, CookConsumesOneOrder)
 
 TEST(KitchenConcurrency, CookConsumesMultipleOrders)
 {
-    Kitchen kitchen(1.0f, 1, 1);
+    Kitchen kitchen(1.0f, 1, 1, nullptr);
 
     kitchen.addOrderToList("Regina S x3\n");
     kitchen.cv.notify_all();
@@ -175,7 +175,7 @@ TEST(KitchenRun, PipeCreatesOrders)
     int pipefd[2];
     ASSERT_EQ(pipe(pipefd), 0);
 
-    Kitchen kitchen(1.0f, 1, 1);
+    Kitchen kitchen(1.0f, 1, 1, nullptr);
 
     std::thread runner([&]() {
         kitchen.run(pipefd);

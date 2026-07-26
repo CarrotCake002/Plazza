@@ -16,7 +16,7 @@ int errorHandling(int ac, const char **av) {
         std::cout << HELP << std::endl;
         return 1;
     }
-    if (ac != 4) {
+    if (ac != 4 && ac != 5) {
         std::cout << ERROR_INVALID_ARG_NB << std::endl;
         return -1;
     }
@@ -27,6 +27,13 @@ int errorHandling(int ac, const char **av) {
         }
         if (!checkArguments(std::stof(av[1]), std::stoi(av[2]), std::stoi(av[3])))
             return -1;
+        if (ac == 5) {
+            int port = std::stoi(av[4]);
+            if (port < 1 || port > 65535 || isFloat(av[4])) {
+                std::cout << ERROR_INVALID_ARG << std::endl;
+                return -1;
+            }
+        }
     } catch (std::exception &e) {
         std::cout << ERROR_INVALID_ARG << std::endl;
         return -1;

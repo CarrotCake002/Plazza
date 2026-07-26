@@ -10,6 +10,7 @@
 #include <condition_variable>
 
 #include "Pizza.hpp"
+#include "KitchenStatus.hpp"
 
 #define PIPE_MESSAGE_SIZE 128
 
@@ -17,7 +18,7 @@
 
 class Kitchen {
 public:
-    Kitchen(float speed_multip, int cooks_nb, int restock_timer);
+    Kitchen(float speed_multip, int cooks_nb, int restock_timer, KitchenStatus* status);
     ~Kitchen(void);
 
     void run(int *pipefd);
@@ -56,6 +57,7 @@ private:
     std::vector<PizzaOrder> pending;
     std::vector<std::thread> cooks;
     std::atomic<bool> shutdown{false};
+    KitchenStatus* status_shm;
 };
 
 #endif // KITCHEN_HPP
