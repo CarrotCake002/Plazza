@@ -1,0 +1,1 @@
+genhtml build/coverage_filtered.info --output-directory coverage_html --ignore-errors source
