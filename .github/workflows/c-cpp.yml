@@ -90,25 +90,18 @@ jobs:
         name: build-dir
         path: build
 
-    # Run unit tests
-    - name: Run tests
+    - name: Run C++ tests
       run: |
         chmod +x build/plazza_tests
         cd build
         ./plazza_tests
-
-  frontend-test:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '22'
 
-    - name: Install dependencies
+    - name: Install frontend dependencies
       run: |
         cd frontend
         npm ci
@@ -125,8 +118,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # Install coverage tools only
-    - name: Install coverage tools
+    # Install coverage tools
+    - name: Install C++ coverage tools
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-13 lcov
@@ -138,15 +131,15 @@ jobs:
         name: build-dir
         path: build
 
-    # Run tests again to generate .gcda
-    - name: Run tests for coverage
+    # Run C++ tests again to generate .gcda
+    - name: Run C++ tests for coverage
       run: |
         chmod +x build/plazza_tests
         cd build
         ./plazza_tests
 
-    # Generate coverage and enforce 80%
-    - name: Generate coverage
+    # Generate C++ coverage and enforce 80%
+    - name: Generate C++ coverage
       run: |
         cd build
 
@@ -164,9 +157,57 @@ jobs:
 
         lcov --summary coverage_filtered.info
 
-    - name: Generate HTML coverage
+    - name: Enforce C++ coverage threshold
       run: |
-        genhtml build/coverage_filtered.info --output-directory coverage_html --ignore-errors source
+        COVERAGE=$(lcov --summary build/coverage_filtered.info | awk '/lines/{gsub("%","",$2); print $2}')
+        echo "C++ coverage: ${COVERAGE}%"
+
+        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+          echo "❌ C++ coverage below 80%"
+          exit 1
+        fi
+        echo "✅ C++ coverage at ${COVERAGE}%"
+
+    # Frontend coverage
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Run frontend tests with coverage
+      run: |
+        cd frontend
+        npm run test:coverage 2>&1 | tee /tmp/frontend-coverage.txt
+
+    - name: Enforce frontend coverage threshold
+      run: |
+        COVERAGE=$(grep -oP 'Lines\s+:\s+\K\d+' /tmp/frontend-coverage.txt)
+        echo "Frontend line coverage: ${COVERAGE}%"
+
+        if [ -z "$COVERAGE" ]; then
+          echo "⚠ Could not parse frontend coverage, skipping threshold check"
+          exit 0
+        fi
+
+        if [ "$COVERAGE" -lt 80 ]; then
+          echo "❌ Frontend coverage below 80%"
+          exit 1
+        fi
+        echo "✅ Frontend coverage at ${COVERAGE}%"
+
+    # Merge coverage reports
+    - name: Generate C++ HTML coverage
+      run: |
+        genhtml build/coverage_filtered.info --output-directory coverage_html/cpp --ignore-errors source
+
+    - name: Copy frontend HTML coverage
+      run: |
+        cp -r frontend/coverage/lcov-report coverage_html/frontend
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
@@ -182,13 +223,3 @@ jobs:
         publish_branch: gh-pages
         publish_dir: coverage_html
         force_orphan: true
-    
-    - name: Enforce coverage threshold
-      run: |
-        COVERAGE=$(lcov --summary build/coverage_filtered.info | awk '/lines/{gsub("%","",$2); print $2}')
-        echo "Total coverage: ${COVERAGE}%"
-
-        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-          echo "❌ Coverage below 80%"
-          exit 1
-        fi
