@@ -58,6 +58,20 @@ static int runWithServer(float speed_multi, int cook_nb, int restock_timer, int 
         return crow::response(j.dump());
     });
 
+    CROW_ROUTE(app, "/api/order").methods("POST"_method)
+    ([&reception](const crow::request& req) {
+        auto body = nlohmann::json::parse(req.body);
+        std::string type = body["type"];
+        std::string size = body["size"];
+        int amount = body["amount"];
+        std::string orderStr = type + " " + size + " x" + std::to_string(amount);
+        if (reception.parseOrder(orderStr) == 0) {
+            reception.handleNewOrders();
+            return crow::response(201, "{\"status\":\"ok\"}");
+        }
+        return crow::response(400, "{\"status\":\"error\",\"message\":\"Invalid order\"}");
+    });
+
     auto server_future = app.bindaddr("127.0.0.1").port(port).multithreaded().run_async();
 
     int result = reception.run();

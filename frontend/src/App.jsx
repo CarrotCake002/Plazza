@@ -1,8 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 
 const API_URL = "/api/status";
+const ORDER_URL = "/api/order";
 
 const POLL_MS = 2000;
+
+const PIZZA_TYPES = ["Regina", "Margarita", "Americana", "Fantasia"];
+const PIZZA_SIZES = ["S", "M", "L", "XL", "XXL"];
 
 function StatCard({ label, value, unit }) {
   return (
@@ -44,6 +48,10 @@ export default function App() {
   const [status, setStatus] = useState(null);
   const [error, setError] = useState(null);
   const [offline, setOffline] = useState(false);
+  const [pizzaType, setPizzaType] = useState("Regina");
+  const [pizzaSize, setPizzaSize] = useState("M");
+  const [pizzaAmount, setPizzaAmount] = useState(1);
+  const [orderMsg, setOrderMsg] = useState(null);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -58,6 +66,26 @@ export default function App() {
       setOffline(true);
     }
   }, []);
+
+  const submitOrder = async (e) => {
+    e.preventDefault();
+    setOrderMsg(null);
+    try {
+      const res = await fetch(ORDER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: pizzaType, size: pizzaSize, amount: pizzaAmount }),
+      });
+      if (res.ok) {
+        setOrderMsg({ ok: true, text: `Ordered ${pizzaAmount}x ${pizzaType} (${pizzaSize})` });
+      } else {
+        const err = await res.json();
+        setOrderMsg({ ok: false, text: err.message || "Order failed" });
+      }
+    } catch {
+      setOrderMsg({ ok: false, text: "Backend unreachable" });
+    }
+  };
 
   useEffect(() => {
     fetchStatus();
@@ -101,6 +129,58 @@ export default function App() {
           </div>
         ) : (
           <>
+            {/* Order Form */}
+            <form onSubmit={submitOrder} className="mb-8 rounded-lg border border-gray-700 bg-gray-800/50 p-4">
+              <div className="flex flex-wrap items-end gap-4">
+                <div>
+                  <label className="mb-1 block text-sm text-gray-400">Type</label>
+                  <select
+                    value={pizzaType}
+                    onChange={(e) => setPizzaType(e.target.value)}
+                    className="rounded border border-gray-600 bg-gray-900 px-3 py-2 text-white text-sm"
+                  >
+                    {PIZZA_TYPES.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm text-gray-400">Size</label>
+                  <select
+                    value={pizzaSize}
+                    onChange={(e) => setPizzaSize(e.target.value)}
+                    className="rounded border border-gray-600 bg-gray-900 px-3 py-2 text-white text-sm"
+                  >
+                    {PIZZA_SIZES.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm text-gray-400">Amount</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="99"
+                    value={pizzaAmount}
+                    onChange={(e) => setPizzaAmount(Number(e.target.value))}
+                    className="w-20 rounded border border-gray-600 bg-gray-900 px-3 py-2 text-white text-sm"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="rounded bg-green-700 px-5 py-2 text-sm font-medium text-white hover:bg-green-600"
+                >
+                  Order
+                </button>
+                {orderMsg && (
+                  <span className={`text-sm ${orderMsg.ok ? "text-green-400" : "text-red-400"}`}>
+                    {orderMsg.text}
+                  </span>
+                )}
+              </div>
+            </form>
+
             {/* Config Bar */}
             <div className="mb-8 grid grid-cols-3 gap-4">
               <StatCard label="Speed Multiplier" value={`${status.config.speed_multiplier}x`} />
